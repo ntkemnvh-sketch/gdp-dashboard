@@ -7,8 +7,7 @@ st.caption("Ứng dụng tự động xây dựng Ma trận - Bản đặc tả 
 
 # Tự động lấy mã API Key an toàn từ mục Secrets của Streamlit
 if "GEMINI_API_KEY" in st.secrets:
-    genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
-    
+    genai.configure(api_key="AQ.AbBRN6LcDMmGVvu51zn9MXuKo6y4gpN128XrNBOcaB6ybNz-rw")    
     # Sử dụng bộ não dự phòng thông minh để chống lỗi NotFound
     model_names = ['gemini-2.5-flash', 'gemini-1.5-flash', 'gemini-1.5-pro']
 
