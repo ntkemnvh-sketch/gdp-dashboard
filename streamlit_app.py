@@ -12,7 +12,7 @@ if "GEMINI_API_KEY" in st.secrets:
     os.environ["GEMINI_API_KEY"] = key_value
     genai.configure(api_key=key_value)
     
-    model_names = ['gemini-2.5-flash']
+    model_names = ['gemini-2.0-flash', 'gemini-1.5-flash']
 
     col1, col2 = st.columns(2)
     with col1:
