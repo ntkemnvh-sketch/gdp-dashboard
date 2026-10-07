@@ -5,11 +5,12 @@ st.set_page_config(page_title="Trợ lý Giáo dục 7991", layout="wide")
 st.title("🎯 TRỢ LÝ AI SOẠN ĐỀ KIỂM TRA ĐỊNH KỲ (CHUẨN CV 7991)")
 st.caption("Ứng dụng tự động xây dựng Ma trận - Bản đặc tả - Đề thi & Đáp án chuẩn Bộ GD&ĐT")
 
+# Tự động lấy mã API Key an toàn từ mục Secrets của Streamlit
 if "GEMINI_API_KEY" in st.secrets:
     genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
     
-    # Danh sách các bộ não AI dự phòng để chống lỗi NotFound
-    model_names = ['gemini-1.5-flash', 'gemini-2.5-flash', 'gemini-1.5-pro']
+    # Sử dụng bộ não dự phòng thông minh để chống lỗi NotFound
+    model_names = ['gemini-2.5-flash', 'gemini-1.5-flash', 'gemini-1.5-pro']
 
     col1, col2 = st.columns(2)
     with col1:
@@ -36,6 +37,6 @@ if "GEMINI_API_KEY" in st.secrets:
                     continue
             
             if not success:
-                st.error("Lỗi kết nối: Mã khóa API Key trong mục Secrets bị sai ký tự hoặc dự án chưa kích hoạt quyền ra đề. Thầy/cô vui lòng kiểm tra lại mã ở tab Google AI Studio.")
+                st.error("Lỗi xác thực: Mã khóa API Key trong mục Secrets của Streamlit bị sai ký tự. Thầy/cô vui lòng kiểm tra lại mã ở tab Google AI Studio.")
 else:
     st.error("Chưa cấu hình API Key trong mục Secrets của Streamlit.")
