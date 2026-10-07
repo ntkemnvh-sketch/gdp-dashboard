@@ -1,151 +1,28 @@
 import streamlit as st
-import pandas as pd
-import math
-from pathlib import Path
+import google.generativeai as genai
 
-# Set the title and favicon that appear in the Browser's tab bar.
-st.set_page_config(
-    page_title='GDP dashboard',
-    page_icon=':earth_americas:', # This is an emoji shortcode. Could be a URL too.
-)
+st.set_page_config(page_title="Trợ lý Giáo dục 7991", layout="wide")
+st.title("🎯 TRỢ LÝ AI SOẠN ĐỀ KIỂM TRA ĐỊNH KỲ (CHUẨN CV 7991)")
+st.caption("Ứng dụng tự động xây dựng Ma trận - Bản đặc tả - Đề thi & Đáp án chuẩn Bộ GD&ĐT")
 
-# -----------------------------------------------------------------------------
-# Declare some useful functions.
+# Tự động kết nối với mã GEMINI_API_KEY mà thầy/cô đã lưu trong mục Secrets lúc nãy
+if "GEMINI_API_KEY" in st.secrets:
+    genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
+    model = genai.GenerativeModel('gemini-1.5-flash')
 
-@st.cache_data
-def get_gdp_data():
-    """Grab GDP data from a CSV file.
+    col1, col2 = st.columns(2)
+    with col1:
+        mon_hoc = st.text_input("Môn học:", placeholder="Ví dụ: Công nghệ, Ngữ văn...")
+        khoi_lop = st.selectbox("Khối lớp:", ["Khối 6", "Khối 7", "Khối 8", "Khối 9", "Khối 10", "Khối 11", "Khối 12"])
+    with col2:
+        hinh_thuc = st.selectbox("Hình thức kiểm tra:", ["Giữa học kỳ 1", "Cuối học kỳ 1", "Giữa học kỳ 2", "Cuối học kỳ 2"])
+        pham_vi = st.text_area("Phạm vi kiến thức:", placeholder="Ví dụ: Bài 1, Bài 2, Bài 3...")
 
-    This uses caching to avoid having to read the file every time. If we were
-    reading from an HTTP endpoint instead of a file, it's a good idea to set
-    a maximum age to the cache with the TTL argument: @st.cache_data(ttl='1d')
-    """
-
-    # Instead of a CSV on disk, you could read from an HTTP endpoint here too.
-    DATA_FILENAME = Path(__file__).parent/'data/gdp_data.csv'
-    raw_gdp_df = pd.read_csv(DATA_FILENAME)
-
-    MIN_YEAR = 1960
-    MAX_YEAR = 2022
-
-    # The data above has columns like:
-    # - Country Name
-    # - Country Code
-    # - [Stuff I don't care about]
-    # - GDP for 1960
-    # - GDP for 1961
-    # - GDP for 1962
-    # - ...
-    # - GDP for 2022
-    #
-    # ...but I want this instead:
-    # - Country Name
-    # - Country Code
-    # - Year
-    # - GDP
-    #
-    # So let's pivot all those year-columns into two: Year and GDP
-    gdp_df = raw_gdp_df.melt(
-        ['Country Code'],
-        [str(x) for x in range(MIN_YEAR, MAX_YEAR + 1)],
-        'Year',
-        'GDP',
-    )
-
-    # Convert years from string to integers
-    gdp_df['Year'] = pd.to_numeric(gdp_df['Year'])
-
-    return gdp_df
-
-gdp_df = get_gdp_data()
-
-# -----------------------------------------------------------------------------
-# Draw the actual page
-
-# Set the title that appears at the top of the page.
-'''
-# :earth_americas: GDP dashboard
-
-Browse GDP data from the [World Bank Open Data](https://data.worldbank.org/) website. As you'll
-notice, the data only goes to 2022 right now, and datapoints for certain years are often missing.
-But it's otherwise a great (and did I mention _free_?) source of data.
-'''
-
-# Add some spacing
-''
-''
-
-min_value = gdp_df['Year'].min()
-max_value = gdp_df['Year'].max()
-
-from_year, to_year = st.slider(
-    'Which years are you interested in?',
-    min_value=min_value,
-    max_value=max_value,
-    value=[min_value, max_value])
-
-countries = gdp_df['Country Code'].unique()
-
-if not len(countries):
-    st.warning("Select at least one country")
-
-selected_countries = st.multiselect(
-    'Which countries would you like to view?',
-    countries,
-    ['DEU', 'FRA', 'GBR', 'BRA', 'MEX', 'JPN'])
-
-''
-''
-''
-
-# Filter the data
-filtered_gdp_df = gdp_df[
-    (gdp_df['Country Code'].isin(selected_countries))
-    & (gdp_df['Year'] <= to_year)
-    & (from_year <= gdp_df['Year'])
-]
-
-st.header('GDP over time', divider='gray')
-
-''
-
-st.line_chart(
-    filtered_gdp_df,
-    x='Year',
-    y='GDP',
-    color='Country Code',
-)
-
-''
-''
-
-
-first_year = gdp_df[gdp_df['Year'] == from_year]
-last_year = gdp_df[gdp_df['Year'] == to_year]
-
-st.header(f'GDP in {to_year}', divider='gray')
-
-''
-
-cols = st.columns(4)
-
-for i, country in enumerate(selected_countries):
-    col = cols[i % len(cols)]
-
-    with col:
-        first_gdp = first_year[first_year['Country Code'] == country]['GDP'].iat[0] / 1000000000
-        last_gdp = last_year[last_year['Country Code'] == country]['GDP'].iat[0] / 1000000000
-
-        if math.isnan(first_gdp):
-            growth = 'n/a'
-            delta_color = 'off'
-        else:
-            growth = f'{last_gdp / first_gdp:,.2f}x'
-            delta_color = 'normal'
-
-        st.metric(
-            label=f'{country} GDP',
-            value=f'{last_gdp:,.0f}B',
-            delta=growth,
-            delta_color=delta_color
-        )
+    if st.button("🚀 BẮT ĐẦU KHỞI TẠO ĐỀ THI"):
+        with st.spinner("AI đang thiết lập theo Công văn 7991... Vui lòng đợi trong giây lát!"):
+            prompt = f"Biên soạn bộ tài liệu kiểm tra cho môn {mon_hoc}, lớp {khoi_lop}, kỳ thi {hinh_thuc} thuộc phạm vi kiến thức: {pham_vi}. Yêu cầu tuân thủ nghiêm ngặt tinh thần Công văn 7991/BGDĐT-GDTrH: 1. Tạo Khung ma trận đề kiểm tra (định dạng bảng rõ ràng, phân chia theo 4 mức độ: Nhận biết, Thông hiểu, Vận dụng, Vận dụng cao; tỷ lệ điểm khuyến nghị là 70% Trắc nghiệm và 30% Tự luận). 2. Bản đặc tả đề kiểm tra. 3. Đề kiểm tra chi tiết. 4. Đáp án và hướng dẫn chấm chi tiết."
+            response = model.generate_content(prompt)
+            st.success("🎉 Đã khởi tạo thành công!")
+            st.markdown(response.text)
+else:
+    st.error("Chưa cấu hình API Key trong mục Secrets của Streamlit.")
