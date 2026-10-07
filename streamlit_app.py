@@ -1,4 +1,4 @@
-import streaml as st
+import streamlit as st
 import google.generativeai as genai
 
 st.set_page_config(page_title="Trợ lý Giáo dục 7991", layout="wide")
