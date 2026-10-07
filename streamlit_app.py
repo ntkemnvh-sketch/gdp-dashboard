@@ -8,7 +8,7 @@ st.caption("Ứng dụng tự động xây dựng Ma trận - Bản đặc tả 
 # Tự động kết nối với mã GEMINI_API_KEY mà thầy/cô đã lưu trong mục Secrets lúc nãy
 if "GEMINI_API_KEY" in st.secrets:
     genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
-    model = genai.GenerativeModel('gemini-1.5-flash')
+    model = genai.GenerativeModel('gemini-2.5-flash')
 
     col1, col2 = st.columns(2)
     with col1:
