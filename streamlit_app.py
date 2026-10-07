@@ -1,15 +1,18 @@
 import streamlit as st
 import google.generativeai as genai
+import os
 
 st.set_page_config(page_title="Trợ lý Giáo dục 7991", layout="wide")
 st.title("🎯 TRỢ LÝ AI SOẠN ĐỀ KIỂM TRA ĐỊNH KỲ (CHUẨN CV 7991)")
 st.caption("Ứng dụng tự động xây dựng Ma trận - Bản đặc tả - Đề thi & Đáp án chuẩn Bộ GD&ĐT")
 
-# Tự động lấy mã API Key an toàn từ mục Secrets của Streamlit
+# Kích hoạt hệ thống nạp mã khóa định dạng mới (AQ.) của Google
 if "GEMINI_API_KEY" in st.secrets:
-    genai.configure(api_key="AQ.AbBRN6LcDMmGVvu51zn9MXuKo6y4gpN128XrNBOcaB6ybNz-rw")    
-    # Sử dụng bộ não dự phòng thông minh để chống lỗi NotFound
-    model_names = ['gemini-2.5-flash', 'gemini-1.5-flash', 'gemini-1.5-pro']
+    key_value = st.secrets["GEMINI_API_KEY"]
+    os.environ["GEMINI_API_KEY"] = key_value
+    genai.configure(api_key=key_value)
+    
+    model_names = ['gemini-1.5-flash', 'gemini-1.5-pro']
 
     col1, col2 = st.columns(2)
     with col1:
@@ -24,6 +27,7 @@ if "GEMINI_API_KEY" in st.secrets:
             prompt = f"Biên soạn bộ tài liệu kiểm tra cho môn {mon_hoc}, lớp {khoi_lop}, kỳ thi {hinh_thuc} thuộc phạm vi kiến thức: {pham_vi}. Yêu cầu tuân thủ nghiêm ngặt tinh thần Công văn 7991/BGDĐT-GDTrH: 1. Tạo Khung ma trận đề kiểm tra (định dạng bảng rõ ràng, phân chia theo 4 mức độ: Nhận biết, Thông hiểu, Vận dụng, Vận dụng cao; tỷ lệ điểm kiểm tra là 70% Trắc nghiệm và 30% Tự luận). 2. Bản đặc tả đề kiểm tra. 3. Đề kiểm tra chi tiết. 4. Đáp án và hướng dẫn chấm chi tiết."
             
             success = False
+            error_msg = ""
             for name in model_names:
                 try:
                     active_model = genai.GenerativeModel(name)
@@ -33,9 +37,10 @@ if "GEMINI_API_KEY" in st.secrets:
                     success = True
                     break
                 except Exception as e:
+                    error_msg = str(e)
                     continue
             
             if not success:
-                st.error("Lỗi xác thực: Mã khóa API Key trong mục Secrets của Streamlit bị sai ký tự. Thầy/cô vui lòng kiểm tra lại mã ở tab Google AI Studio.")
+                st.error(f"Lỗi hệ thống: {error_msg}")
 else:
     st.error("Chưa cấu hình API Key trong mục Secrets của Streamlit.")
