@@ -1,5 +1,5 @@
-import streamlit st
-import google.generativeai genai
+import streaml as st
+import google.generativeai as genai
 
 st.set_page_config(page_title="Trợ lý Giáo dục 7991", layout="wide")
 st.title("🎯 TRỢ LÝ AI SOẠN ĐỀ KIỂM TRA ĐỊNH KỲ (CHUẨN CV 7991)")
